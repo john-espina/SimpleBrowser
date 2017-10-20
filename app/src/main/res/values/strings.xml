@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">SimpleBrowser</string>
+
+    <string-array name="menu_array">
+        <item> </item>
+        <item>→</item>
+        <item>Home</item>
+        <item>History</item>
+        <item>Bookmarks</item>
+
+    </string-array>
+
+    <string-array name="menu_array_home">
+        <item> </item>
+        <item>History</item>
+        <item>Bookmarks</item>
+
+    </string-array>
+
+
+</resources>

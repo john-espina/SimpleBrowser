@@ -1,0 +1,36 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+    <style name="AppTheme.NoTitle" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="android:windowFullscreen">false</item>
+        <item name="android:windowContentOverlay">@null</item>
+    </style>
+
+
+    <style name="SpinnerTheme" parent="android:Widget.Spinner">
+        <item name="android:background">@drawable/menu_icon</item>
+    </style>
+
+    <style name="BookMarkTheme" parent="android:Widget.ImageButton">
+        <item name="android:background">@drawable/bookmarked</item>
+    </style>
+
+    <style name="HomeIconTheme" parent="android:Widget.ImageButton">
+        <item name="android:background">@drawable/home_icon</item>
+    </style>
+
+    <style name="BackIconTheme" parent="android:Widget.ImageButton">
+        <item name="android:background">@drawable/back</item>
+    </style>
+
+
+</resources>
