@@ -4,9 +4,8 @@
     <string-array name="menu_array">
         <item> </item>
         <item>→</item>
-        <item>Home</item>
-        <item>History</item>
         <item>Bookmarks</item>
+        <item>History</item>
 
     </string-array>
 

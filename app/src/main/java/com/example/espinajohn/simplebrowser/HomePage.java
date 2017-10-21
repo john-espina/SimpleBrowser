@@ -63,7 +63,7 @@ public class HomePage extends AppCompatActivity {
                     }
                 });
 
-        // Setting up the url box
+        // Setting up the urlBox box
         url = (EditText) findViewById(R.id.url_editText);
 
         // Go Button to process the web
@@ -79,9 +79,9 @@ public class HomePage extends AppCompatActivity {
 //        go.setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View v) {
-//                urlString = url.getText().toString();
+//                urlString = urlBox.getText().toString();
 //                String enteredURL = new String (checkURL(urlString));
-//                String urlStringID = "url";
+//                String urlStringID = "urlBox";
 //                Toast.makeText(HomePage.this, enteredURL, Toast.LENGTH_SHORT).show();
 //                main.putExtra(urlStringID,enteredURL);
 //                startActivity(main);
@@ -95,11 +95,11 @@ public class HomePage extends AppCompatActivity {
                 boolean handled = false;
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     urlString = url.getText().toString();
-                    String enteredURL = new String (checkURL(urlString));
-                    String urlStringID = "url";
-                    main.putExtra(urlStringID,enteredURL);
+                    //String enteredURL = new String (checkURL(urlString));
+                    String urlStringID = "urlBox";
+                 //   main.putExtra(urlStringID,enteredURL);
                     startActivity(main);
-                    Toast.makeText(HomePage.this, enteredURL, Toast.LENGTH_SHORT).show();
+                  //  Toast.makeText(HomePage.this, enteredURL, Toast.LENGTH_SHORT).show();
                 }
 
                 return true;
@@ -109,27 +109,5 @@ public class HomePage extends AppCompatActivity {
 
     }
 
-    protected static String checkURL(String url){
-        if (url.startsWith("http://")){
-            url = url;
-        }
 
-        if (url.startsWith("www")){
-            url = "http://" + url;
-        }
-
-        if (!url.contains(".") && (!url.equalsIgnoreCase("google"))){
-            url = "http://www.google.com/#q=" + url;return url;
-        }
-
-
-        if (!url.startsWith("www") && (!url.startsWith("http")) && (!url.equalsIgnoreCase("google"))){
-            url = "http://www." + url;
-        }
-        if (url.equalsIgnoreCase("google")){
-            url = "http://www." + url + ".com";
-        }
-
-       return url;
-    }
 }

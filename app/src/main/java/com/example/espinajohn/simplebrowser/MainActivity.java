@@ -1,79 +1,69 @@
 package com.example.espinajohn.simplebrowser;
 
-import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
-import android.media.Image;
-import android.net.Uri;
-import android.os.Build;
-import android.os.Parcelable;
-import android.support.annotation.RequiresApi;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.Selection;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.webkit.WebBackForwardList;
 import android.webkit.WebHistoryItem;
-import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ViewFlipper;
 
 import java.util.ArrayList;
-import java.util.zip.Inflater;
 
 public class MainActivity extends AppCompatActivity {
 
-    EditText url;
-    ImageButton home;
-    ImageButton bookmark;
-    Spinner menu;
+    EditText urlBox;
+    ImageButton homeImageButton;
+    ImageButton bookmarkImageButton;
+    Spinner menuSpinner;
     WebView webview;
-    String urlInputted;
+    String urlString;
     String newUrlString;
-    Intent homePage;
+    Intent homePageIntent;
     String URL_ID;
-    ProgressBar progress;
-    TextView historyText;
+    ProgressBar progressIcon;
     ImageButton backFromHistory;
+    TextView historyTextView;
+    TextView historyTextViewHeader;
     String TAG;
-    ArrayList<String> historyList;
-
-
-
+    LayoutInflater inflater;
+    Boolean outsideWebview;
+    View mainPage;
 
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         outState.putString(URL_ID, webview.getUrl());
+        webview.saveState(outState);
         super.onSaveInstanceState(outState);
-        Log.d("url", webview.getUrl().toString());
+        Log.d("urlBox", webview.getUrl().toString());
 
     }
 
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        urlInputted = savedInstanceState.getString(URL_ID);
+        urlString = savedInstanceState.getString(URL_ID);
+        webview.restoreState(savedInstanceState);
         super.onRestoreInstanceState(savedInstanceState);
-        Log.d("onRestore", urlInputted);
+        Log.d("onRestore", urlString);
     }
 
 
@@ -82,39 +72,39 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
-        if (savedInstanceState == null) {
-            Bundle extras = getIntent().getExtras();
-            if (extras == null) {
-                urlInputted = null;
-            } else {
-                urlInputted = extras.getString("url");
-            }
-        }
-
-        setContentView(R.layout.activity_main);
+        inflater = getLayoutInflater();
+       mainPage = inflater.inflate(R.layout.activity_main, null);
+        final View historyPage = inflater.inflate(R.layout.history, null);
+        final View bookmarksPage = inflater.inflate(R.layout.bookmarks, null);
+        final View homeScreenPage = inflater.inflate(R.layout.home_screen, null);
+        ConstraintLayout.LayoutParams default_layout_params = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, ConstraintLayout.LayoutParams.MATCH_PARENT);
+        addContentView(mainPage, default_layout_params);
+        addContentView(historyPage, default_layout_params);
+        addContentView(bookmarksPage, default_layout_params);
 
 
+        setContentView(mainPage);
 
-        url = (EditText) findViewById(R.id.url_main_activity);
-        url.setText(urlInputted);
-        home = (ImageButton) findViewById(R.id.home_button);
-        bookmark = (ImageButton) findViewById(R.id.bookmark_button);
-        progress = (ProgressBar)findViewById(R.id.progressBar);
-
+        // Main Page Objects
+        urlBox = (EditText) findViewById(R.id.url_main_activity);
+        homeImageButton = (ImageButton) findViewById(R.id.home_button);
+        bookmarkImageButton = (ImageButton) findViewById(R.id.bookmark_button);
+        progressIcon = (ProgressBar)findViewById(R.id.progressBar);
         webview = (WebView) findViewById(R.id.web);
 
-        webview.setWebViewClient(new WebViewClient(){
 
-            public void onPageStarted(WebView view, String urlString, Bitmap favicon) {
-                progress.setVisibility(view.VISIBLE);
-                super.onPageStarted(view, urlString, favicon);
+
+
+        webview.setWebViewClient(new WebViewClient(){
+            public void onPageStarted (WebView view, String urlString, Bitmap faveicon){
+                super.onPageStarted(view, urlString, faveicon);
+                progressIcon.setVisibility(View.VISIBLE);
             }
 
 
             public  void  onPageFinished(WebView view, String urlString){
-                progress.setVisibility(view.GONE);
-                url.setText(webview.getUrl());
+                progressIcon.setVisibility(view.GONE);
+                urlBox.setText(webview.getUrl());
                 super.onPageFinished(view, urlString);
             }
 
@@ -134,62 +124,97 @@ public class MainActivity extends AppCompatActivity {
         final WebSettings webSettings = webview.getSettings();
         webSettings.setJavaScriptEnabled(true);
 
-        webview.loadUrl(urlInputted);
-
-        homePage= (Intent) new Intent(this, HomePage.class);
 
 
-
-        menu = (Spinner) findViewById(R.id.menu_main);
+        menuSpinner = (Spinner) findViewById(R.id.menu_main);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity.this,
                 android.R.layout.simple_spinner_item, getResources().getStringArray(R.array.menu_array));
 
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        menu.setAdapter(adapter);
+        menuSpinner.setAdapter(adapter);
 
-        menu.setOnItemSelectedListener(
+        menuSpinner.setOnItemSelectedListener(
                 new AdapterView.OnItemSelectedListener() {
 
                     @Override
                     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 
-
-                        int selected = menu.getSelectedItemPosition();
+                        int selected = menuSpinner.getSelectedItemPosition();
 
                         if (selected == 1) {
                             if (webview.canGoForward() == true) {
                                 webview.goForward();
                             }
-                        }
-                        if (selected == 2) {
-                            setContentView(R.layout.bookmarks);
+                        }else if (selected == 2) {
+                            setContentView(bookmarksPage);
+                            outsideWebview = true;
 
-                        }
-                        if (selected == 3) {
 
-                            setContentView(R.layout.history);
 
-                            historyText = (TextView) findViewById(R.id.historyXML);
 
+
+
+                        } else if (selected ==3){
+
+                            setContentView(historyPage);
+                            outsideWebview = true;
+
+
+//                            mainPage.setVisibility(View.GONE);
+//                            historyPage.setVisibility(View.VISIBLE);
+                            historyTextViewHeader = (TextView) findViewById(R.id.history_text_view_header);
                             backFromHistory = (ImageButton) findViewById(R.id.back_from_history);
+                            historyTextView = (TextView)findViewById(R.id.historyXML);
+
+
+
+
+                            getHistory();
+//                            webview.setVisibility(View.GONE);
+//                            homeImageButton.setVisibility(View.GONE);
+//                            urlBox.setVisibility(View.GONE);
+//                            bookmarkImageButton.setVisibility(View.GONE);
+//                            menuSpinner.setVisibility(View.GONE);
+//
+//                            historyTextView.setVisibility(View.VISIBLE);
+//                            historyTextViewHeader.setVisibility(View.VISIBLE);
+//                            backFromHistory.setVisibility(View.VISIBLE);
+
+
+
 
                             backFromHistory.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
 
 
+                                    setContentView(mainPage);
+                                    outsideWebview=true;
+
+
+
+//                                    historyTextViewHeader.setVisibility(View.GONE);
+//                                    historyTextView.setVisibility(View.GONE);
+//                                    backFromHistory.setVisibility(View.GONE);
+//                                    webview.setVisibility(View.VISIBLE);
+//                                    homeImageButton.setVisibility(View.VISIBLE);
+//                                    urlBox.setVisibility(View.VISIBLE);
+//                                    bookmarkImageButton.setVisibility(View.VISIBLE);
+//                                    menuSpinner.setVisibility(View.VISIBLE);
+
+
+
                                 }
                             });
 
-                            getHistory(webview, historyText);
+
 
 
 
                         }
 
-                        if (menu.getSelectedItem().toString().equalsIgnoreCase("Home")) {
-                            startActivity(homePage);
-                        }
+
+
                     }
 
 
@@ -204,13 +229,13 @@ public class MainActivity extends AppCompatActivity {
          Setting the action that happens after typing the website
          so the user does not have to click the go button
           */
-        url.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        urlBox.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 boolean handled = false;
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    newUrlString = url.getText().toString();
-                    String enteredURL = HomePage.checkURL(newUrlString);
+                    newUrlString = urlBox.getText().toString();
+                    String enteredURL = checkURL(newUrlString);
                     Toast.makeText(MainActivity.this, enteredURL, Toast.LENGTH_SHORT).show();
                     webview.loadUrl(enteredURL);
                 }
@@ -218,18 +243,19 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        url.setOnClickListener(new View.OnClickListener() {
+        urlBox.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                url.setSelection(url.getText().length(), 0);
+                urlBox.setSelection(urlBox.getText().length(), 0);
             }
 
         });
 
-        home.setOnClickListener(new View.OnClickListener() {
+        homeImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(homePage);
+                //startActivity(homePageIntent);
+                webview.setVisibility(View.GONE);
             }
         });
 
@@ -238,11 +264,13 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (webview.canGoBack() == true) {
+        if (webview.canGoBack() == true && outsideWebview == false) {
             webview.goBack();
-        }
 
-        else {
+        } else if (outsideWebview==true){
+            setContentView(mainPage);
+            outsideWebview= false;
+        } else {
             finish();
             super.onBackPressed();
         }
@@ -253,17 +281,41 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    protected void getHistory(WebView view, TextView tv){
+    protected void getHistory(){
 
-        WebBackForwardList history = view.copyBackForwardList();
-        historyList = new ArrayList<>();
+        WebBackForwardList history = webview.copyBackForwardList();
+
         for (int i=0; i<history.getSize();i++){
             WebHistoryItem item = history.getItemAtIndex(i);
             String urlTitle = item.getTitle();
             String urlInHistory = item.getUrl();
-            tv.append(urlTitle + "\n" + urlInHistory + "\n\n");
+            historyTextView.append(urlTitle + "\n" + urlInHistory + "\n\n");
 
         }
+    }
+
+    protected  String checkURL(String url){
+        if (url.startsWith("http://")){
+            url = url;
+        }
+
+        if (url.startsWith("www")){
+            url = "http://" + url;
+        }
+
+        if (!url.contains(".") && (!url.equalsIgnoreCase("google"))){
+            url = "http://www.google.com/#q=" + url;return url;
+        }
+
+
+        if (!url.startsWith("www") && (!url.startsWith("http")) && (!url.equalsIgnoreCase("google"))){
+            url = "http://www." + url;
+        }
+        if (url.equalsIgnoreCase("google")){
+            url = "http://www." + url + ".com";
+        }
+
+        return url;
     }
 
 
