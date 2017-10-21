@@ -2,6 +2,7 @@ package com.example.espinajohn.simplebrowser;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -23,7 +24,7 @@ import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ViewFlipper;
+
 
 import java.util.ArrayList;
 
@@ -48,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
     View mainPage;
 
 
+
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         outState.putString(URL_ID, webview.getUrl());
@@ -63,27 +65,26 @@ public class MainActivity extends AppCompatActivity {
         urlString = savedInstanceState.getString(URL_ID);
         webview.restoreState(savedInstanceState);
         super.onRestoreInstanceState(savedInstanceState);
-        Log.d("onRestore", urlString);
     }
-
 
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
 
         inflater = getLayoutInflater();
-       mainPage = inflater.inflate(R.layout.activity_main, null);
+        mainPage = inflater.inflate(R.layout.activity_main, null);
         final View historyPage = inflater.inflate(R.layout.history, null);
         final View bookmarksPage = inflater.inflate(R.layout.bookmarks, null);
-        final View homeScreenPage = inflater.inflate(R.layout.home_screen, null);
         ConstraintLayout.LayoutParams default_layout_params = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, ConstraintLayout.LayoutParams.MATCH_PARENT);
         addContentView(mainPage, default_layout_params);
         addContentView(historyPage, default_layout_params);
         addContentView(bookmarksPage, default_layout_params);
 
-
         setContentView(mainPage);
+
+        outsideWebview = false;
 
         // Main Page Objects
         urlBox = (EditText) findViewById(R.id.url_main_activity);
@@ -91,8 +92,6 @@ public class MainActivity extends AppCompatActivity {
         bookmarkImageButton = (ImageButton) findViewById(R.id.bookmark_button);
         progressIcon = (ProgressBar)findViewById(R.id.progressBar);
         webview = (WebView) findViewById(R.id.web);
-
-
 
 
         webview.setWebViewClient(new WebViewClient(){
@@ -108,23 +107,26 @@ public class MainActivity extends AppCompatActivity {
                 super.onPageFinished(view, urlString);
             }
 
-//            @Override
-//            public  boolean shouldOverrideUrlLoading (WebView view, String urlString ){
-//                if (urlString.contains("mailto:")){
-//                    Intent i = new Intent(Intent.ACTION_SEND, Uri.parse(urlString));
-//                    startActivity(i);
-//                } else  {
-//                    view.loadUrl(urlString);
-//                }
-//
-//                return true;
-//            }
+            @Override
+            public  boolean shouldOverrideUrlLoading (WebView view, String urlString ){
+                if (urlString.contains("mailto:")){
+                    Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.parse(urlString));
+                    startActivity(emailIntent);
+
+                } else if (urlString.startsWith("tel:")) {
+                    Intent phoneIntent = new Intent(Intent.ACTION_DIAL,
+                            Uri.parse(urlString));
+                    startActivity(phoneIntent);
+
+                } else  {
+                    view.loadUrl(urlString);
+                }
+                return true;
+            }
         });
 
         final WebSettings webSettings = webview.getSettings();
         webSettings.setJavaScriptEnabled(true);
-
-
 
         menuSpinner = (Spinner) findViewById(R.id.menu_main);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity.this,
@@ -142,82 +144,39 @@ public class MainActivity extends AppCompatActivity {
                         int selected = menuSpinner.getSelectedItemPosition();
 
                         if (selected == 1) {
+
                             if (webview.canGoForward() == true) {
                                 webview.goForward();
                             }
-                        }else if (selected == 2) {
+
+                        } else if (selected == 2) {
+
                             setContentView(bookmarksPage);
                             outsideWebview = true;
-
-
-
-
-
 
                         } else if (selected ==3){
 
                             setContentView(historyPage);
+
                             outsideWebview = true;
 
-
-//                            mainPage.setVisibility(View.GONE);
-//                            historyPage.setVisibility(View.VISIBLE);
                             historyTextViewHeader = (TextView) findViewById(R.id.history_text_view_header);
                             backFromHistory = (ImageButton) findViewById(R.id.back_from_history);
                             historyTextView = (TextView)findViewById(R.id.historyXML);
 
-
-
-
                             getHistory();
-//                            webview.setVisibility(View.GONE);
-//                            homeImageButton.setVisibility(View.GONE);
-//                            urlBox.setVisibility(View.GONE);
-//                            bookmarkImageButton.setVisibility(View.GONE);
-//                            menuSpinner.setVisibility(View.GONE);
-//
-//                            historyTextView.setVisibility(View.VISIBLE);
-//                            historyTextViewHeader.setVisibility(View.VISIBLE);
-//                            backFromHistory.setVisibility(View.VISIBLE);
-
-
-
 
                             backFromHistory.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
 
-
                                     setContentView(mainPage);
-                                    outsideWebview=true;
-
-
-
-//                                    historyTextViewHeader.setVisibility(View.GONE);
-//                                    historyTextView.setVisibility(View.GONE);
-//                                    backFromHistory.setVisibility(View.GONE);
-//                                    webview.setVisibility(View.VISIBLE);
-//                                    homeImageButton.setVisibility(View.VISIBLE);
-//                                    urlBox.setVisibility(View.VISIBLE);
-//                                    bookmarkImageButton.setVisibility(View.VISIBLE);
-//                                    menuSpinner.setVisibility(View.VISIBLE);
-
-
+                                    outsideWebview=false;
 
                                 }
                             });
-
-
-
-
-
                         }
-
-
-
                     }
-
-
 
                     @Override
                     public void onNothingSelected(AdapterView<?> parent) {
@@ -254,12 +213,9 @@ public class MainActivity extends AppCompatActivity {
         homeImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //startActivity(homePageIntent);
-                webview.setVisibility(View.GONE);
+
             }
         });
-
-
     }
 
     @Override
@@ -270,14 +226,12 @@ public class MainActivity extends AppCompatActivity {
         } else if (outsideWebview==true){
             setContentView(mainPage);
             outsideWebview= false;
+
         } else {
             finish();
-            super.onBackPressed();
+
         }
     }
-
-
-
 
 
 
@@ -307,7 +261,6 @@ public class MainActivity extends AppCompatActivity {
             url = "http://www.google.com/#q=" + url;return url;
         }
 
-
         if (!url.startsWith("www") && (!url.startsWith("http")) && (!url.equalsIgnoreCase("google"))){
             url = "http://www." + url;
         }
@@ -317,10 +270,6 @@ public class MainActivity extends AppCompatActivity {
 
         return url;
     }
-
-
-
-
 
     @Override
     protected void onStart() {
