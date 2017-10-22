@@ -1,5 +1,6 @@
 package com.example.espinajohn.simplebrowser;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -12,18 +13,22 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.webkit.WebBackForwardList;
+import android.webkit.WebChromeClient;
 import android.webkit.WebHistoryItem;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
 
 
 import java.util.ArrayList;
@@ -37,7 +42,6 @@ public class MainActivity extends AppCompatActivity {
     WebView webview;
     String urlString;
     String newUrlString;
-    Intent homePageIntent;
     String URL_ID;
     ProgressBar progressIcon;
     ImageButton backFromHistory;
@@ -47,6 +51,12 @@ public class MainActivity extends AppCompatActivity {
     LayoutInflater inflater;
     Boolean outsideWebview;
     View mainPage;
+    ImageButton refreshButton;
+    TextView clearHistory;
+    ImageButton deleteHistoryButton;
+    ArrayList<String> bookmarkList;
+    Boolean bookmarked;
+    ImageButton starred;
 
 
 
@@ -85,12 +95,17 @@ public class MainActivity extends AppCompatActivity {
         setContentView(mainPage);
 
         outsideWebview = false;
+        bookmarkList = new ArrayList<>();
 
         // Main Page Objects
         urlBox = (EditText) findViewById(R.id.url_main_activity);
         homeImageButton = (ImageButton) findViewById(R.id.home_button);
         bookmarkImageButton = (ImageButton) findViewById(R.id.bookmark_button);
         progressIcon = (ProgressBar)findViewById(R.id.progressBar);
+        refreshButton = (ImageButton) findViewById(R.id.refresh_button);
+        starred = (ImageButton)findViewById(R.id.starred);
+
+
         webview = (WebView) findViewById(R.id.web);
         final WebSettings webSettings = webview.getSettings();
         webSettings.setJavaScriptEnabled(true);
@@ -98,18 +113,25 @@ public class MainActivity extends AppCompatActivity {
         webSettings.setDisplayZoomControls(false);
 
 
+
+
+
         webview.setWebViewClient(new WebViewClient(){
             public void onPageStarted (WebView view, String urlString, Bitmap faveicon){
-                super.onPageStarted(view, urlString, faveicon);
+                refreshButton.setVisibility(View.GONE);
                 progressIcon.setVisibility(View.VISIBLE);
+                checkIfBookmarked();
+
             }
 
 
             public  void  onPageFinished(WebView view, String urlString){
                 progressIcon.setVisibility(view.GONE);
-                urlBox.setText(webview.getUrl());
-                super.onPageFinished(view, urlString);
+                String currentURL = webview.getUrl();
+                urlBox.setText(currentURL);
+                refreshButton.setVisibility(View.VISIBLE);
             }
+
 
             @Override
             public  boolean shouldOverrideUrlLoading (WebView view, String urlString ){
@@ -156,6 +178,33 @@ public class MainActivity extends AppCompatActivity {
 
                             setContentView(bookmarksPage);
                             outsideWebview = true;
+                            TextView bookmarkText = (TextView)findViewById(R.id.bookmarkXML);
+                            TextView bookmarkHeader = (TextView)findViewById(R.id.bookmarktitle);
+                            ImageButton goBack = (ImageButton) findViewById(R.id.back_from_bookmark);
+
+
+
+                            if (webview.canGoForward()){
+                               webview.goForward();
+                            }
+                            String b = "";
+                            for (int x = 0; x < bookmarkList.size(); x++) {
+                                b += bookmarkList.get(x) + "\n";
+                            }
+
+                            bookmarkText.setText(b);
+
+                            goBack.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+
+                                    setContentView(mainPage);
+                                    outsideWebview=false;
+
+                                }
+                            });
+
+
 
                         } else if (selected ==3){
 
@@ -163,9 +212,11 @@ public class MainActivity extends AppCompatActivity {
 
                             outsideWebview = true;
 
-                            historyTextViewHeader = (TextView) findViewById(R.id.history_text_view_header);
+                            historyTextViewHeader = (TextView) findViewById(R.id.historyXML);
                             backFromHistory = (ImageButton) findViewById(R.id.back_from_history);
                             historyTextView = (TextView)findViewById(R.id.historyXML);
+                            clearHistory = (TextView)findViewById(R.id.clear_history);
+                            deleteHistoryButton =(ImageButton)findViewById(R.id.delete_button);
 
                             getHistory();
 
@@ -178,7 +229,43 @@ public class MainActivity extends AppCompatActivity {
 
                                 }
                             });
+                            deleteHistoryButton.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+
+                                    final TextView dialogBox = (TextView)findViewById(R.id.dialog);
+                                    final Button yes = (Button)findViewById(R.id.yes_button);
+                                    final Button cancel = (Button)findViewById(R.id.no_button);
+
+                                    dialogBox.setVisibility(View.VISIBLE);
+                                    yes.setVisibility(View.VISIBLE);
+                                    cancel.setVisibility(View.VISIBLE);
+
+                                    yes.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            Intent newWebView = new Intent(MainActivity.this, MainActivity.class);
+                                            startActivity(newWebView);
+                                            Toast.makeText(MainActivity.this, "Browsing history cleared", Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+
+                                    cancel.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            dialogBox.setVisibility(View.GONE);
+                                            yes.setVisibility(View.GONE);
+                                            cancel.setVisibility(View.GONE);
+                                        }
+                                    });
+
+
+
+
+                                }
+                            });
                         }
+                        menuSpinner.setSelection(0);
                     }
 
                     @Override
@@ -195,11 +282,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 boolean handled = false;
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                if (actionId == EditorInfo.IME_ACTION_NEXT) {
                     newUrlString = urlBox.getText().toString();
                     String enteredURL = checkURL(newUrlString);
                     Toast.makeText(MainActivity.this, enteredURL, Toast.LENGTH_SHORT).show();
                     webview.loadUrl(enteredURL);
+
+
                 }
                 return true;
             }
@@ -216,6 +305,48 @@ public class MainActivity extends AppCompatActivity {
         homeImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                setContentView(mainPage);
+                webview.loadUrl("http://www.google.com");
+            }
+        });
+
+        refreshButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                webview.loadUrl(webview.getUrl());
+
+
+            }
+        });
+
+        bookmarkImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                String selectedURL = webview.getUrl();
+
+                    bookmarked = true;
+                    bookmarkImageButton.setVisibility(View.GONE);
+                    starred.setVisibility(View.VISIBLE);
+                    bookmarkList.add(selectedURL);
+                    bookmarkList.add("\n");
+
+                    Toast.makeText(MainActivity.this, "Bookmark added " + selectedURL, Toast.LENGTH_SHORT).show();
+
+            }
+        });
+
+
+        starred.setOnClickListener(new View.OnClickListener() {
+            String selectedURL = webview.getUrl();
+            @Override
+            public void onClick(View v) {
+                bookmarked = false;
+                bookmarkImageButton.setVisibility(View.VISIBLE);
+                starred.setVisibility(View.GONE);
+                Toast.makeText(MainActivity.this, "This page is now removed from your Bookmarks", Toast.LENGTH_SHORT).show();
+                bookmarkList.remove(selectedURL);
 
             }
         });
@@ -274,34 +405,19 @@ public class MainActivity extends AppCompatActivity {
         return url;
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        Log.v(TAG, "On Start:");
+    public void checkIfBookmarked(){
+        if (bookmarkList.contains(webview.getUrl())){
+            bookmarked = true;
+           starred.setVisibility(View.VISIBLE);
+            bookmarkImageButton.setVisibility(View.GONE);
 
-    }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Log.d(TAG, "On Resume:");
-    }
+        }else {
+            bookmarked = false;
+            starred.setVisibility(View.GONE);
+            bookmarkImageButton.setVisibility(View.VISIBLE);
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        Log.d(TAG, "On Pause:");
-    }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        Log.d(TAG, "On Stop:");
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        Log.d(TAG, "On Destroy:");
+        }
     }
 }

@@ -29,8 +29,18 @@
     </style>
 
     <style name="BackIconTheme" parent="android:Widget.ImageButton">
-        <item name="android:background">@drawable/back</item>
+    <item name="android:background">@drawable/back</item>
+    </style>
+    <style name="RefreshIconTheme" parent="android:Widget.ImageButton">
+        <item name="android:background">@drawable/refresh_icon</item>
     </style>
 
+    <style name="DeketeIconTheme" parent="android:Widget.ImageButton">
+    <item name="android:background">@drawable/delete_button</item>
+</style>
+
+    <style name="StarredTheme" parent="android:Widget.ImageButton">
+        <item name="android:background">@drawable/starred</item>
+    </style>
 
 </resources>
