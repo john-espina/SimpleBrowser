@@ -101,7 +101,7 @@
         android:id="@+id/web"
         android:layout_width="419dp"
         android:layout_height="598dp"
-        android:layout_marginBottom="747dp"
+        android:layout_marginBottom="3dp"
         android:layout_marginEnd="0dp"
         android:layout_marginLeft="0dp"
         android:layout_marginRight="0dp"
@@ -110,6 +110,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
+        tools:layout_editor_absoluteY="58dp"
         app:layout_constraintHorizontal_bias="0.0">
 
     </WebView>

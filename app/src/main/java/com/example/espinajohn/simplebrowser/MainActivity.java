@@ -57,6 +57,10 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<String> bookmarkList;
     Boolean bookmarked;
     ImageButton starred;
+    TextView dialogBox;
+    Button yes;
+    Button cancel;
+    String booleanKey;
 
 
 
@@ -64,8 +68,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onSaveInstanceState(Bundle outState) {
         outState.putString(URL_ID, webview.getUrl());
         webview.saveState(outState);
+        outState.putBoolean(booleanKey, bookmarked);
         super.onSaveInstanceState(outState);
-        Log.d("urlBox", webview.getUrl().toString());
+
 
     }
 
@@ -74,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         urlString = savedInstanceState.getString(URL_ID);
         webview.restoreState(savedInstanceState);
+        bookmarked = savedInstanceState.getBoolean(booleanKey);
         super.onRestoreInstanceState(savedInstanceState);
     }
 
@@ -210,6 +216,7 @@ public class MainActivity extends AppCompatActivity {
 
                             setContentView(historyPage);
 
+
                             outsideWebview = true;
 
                             historyTextViewHeader = (TextView) findViewById(R.id.historyXML);
@@ -217,6 +224,13 @@ public class MainActivity extends AppCompatActivity {
                             historyTextView = (TextView)findViewById(R.id.historyXML);
                             clearHistory = (TextView)findViewById(R.id.clear_history);
                             deleteHistoryButton =(ImageButton)findViewById(R.id.delete_button);
+                            dialogBox = (TextView)findViewById(R.id.dialog);
+                            yes = (Button)findViewById(R.id.yes_button);
+                            cancel = (Button)findViewById(R.id.no_button);
+
+                            dialogBox.setVisibility(View.GONE);
+                            cancel.setVisibility(View.GONE);
+                            yes.setVisibility(View.GONE);
 
                             getHistory();
 
@@ -233,9 +247,9 @@ public class MainActivity extends AppCompatActivity {
                                 @Override
                                 public void onClick(View v) {
 
-                                    final TextView dialogBox = (TextView)findViewById(R.id.dialog);
-                                    final Button yes = (Button)findViewById(R.id.yes_button);
-                                    final Button cancel = (Button)findViewById(R.id.no_button);
+                                    dialogBox = (TextView)findViewById(R.id.dialog);
+                                    yes = (Button)findViewById(R.id.yes_button);
+                                    cancel = (Button)findViewById(R.id.no_button);
 
                                     dialogBox.setVisibility(View.VISIBLE);
                                     yes.setVisibility(View.VISIBLE);
@@ -358,6 +372,7 @@ public class MainActivity extends AppCompatActivity {
             webview.goBack();
 
         } else if (outsideWebview==true){
+
             setContentView(mainPage);
             outsideWebview= false;
 

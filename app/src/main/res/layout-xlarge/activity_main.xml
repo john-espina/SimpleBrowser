@@ -11,8 +11,8 @@
 
     <EditText
         android:id="@+id/url_main_activity"
-        android:layout_width="302dp"
-        android:layout_height="35dp"
+        android:layout_width="498dp"
+        android:layout_height="56dp"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginLeft="8dp"
@@ -35,17 +35,17 @@
         android:textColorLink="?android:attr/colorPrimaryDark"
         android:textSize="15sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.322"
+        app:layout_constraintHorizontal_bias="0.349"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintVertical_bias="0.007" />
 
     <Spinner
         android:id="@+id/menu_main"
         style="@style/SpinnerTheme"
-        android:layout_width="25dp"
-        android:layout_height="20dp"
+        android:layout_width="60dp"
+        android:layout_height="40dp"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginLeft="8dp"
@@ -54,17 +54,17 @@
         android:layout_marginTop="6dp"
         android:spinnerMode="dropdown"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintHorizontal_bias="0.988"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.014" />
+        app:layout_constraintVertical_bias="0.02" />
 
     <ImageButton
         android:id="@+id/bookmark_button"
         style="@style/BookMarkTheme"
-        android:layout_width="24dp"
-        android:layout_height="22dp"
+        android:layout_width="60dp"
+        android:layout_height="40dp"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="5dp"
         android:layout_marginLeft="8dp"
@@ -73,46 +73,29 @@
         android:layout_marginTop="6dp"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.898"
+        app:layout_constraintHorizontal_bias="0.847"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.016" />
+        app:layout_constraintVertical_bias="0.02" />
 
     <ImageButton
         android:id="@+id/home_button"
         style="@style/HomeIconTheme"
-        android:layout_width="26dp"
-        android:layout_height="24dp"
+        android:layout_width="60dp"
+        android:layout_height="40dp"
         android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
         android:layout_marginLeft="6dp"
         android:layout_marginRight="4dp"
+        android:layout_marginStart="6dp"
         android:layout_marginTop="6dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="0.032"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.014"
-        android:layout_marginStart="6dp"
-        android:layout_marginEnd="8dp" />
-
-    <WebView
-        android:id="@+id/web"
-        android:layout_width="419dp"
-        android:layout_height="598dp"
-        android:layout_marginBottom="747dp"
-        android:layout_marginEnd="0dp"
-        android:layout_marginLeft="0dp"
-        android:layout_marginRight="0dp"
-        android:layout_marginStart="0dp"
-        android:visibility="visible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintHorizontal_bias="0.0">
-
-    </WebView>
+        app:layout_constraintVertical_bias="0.019" />
 
     <ImageButton
         android:id="@+id/starred"
@@ -168,5 +151,22 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.012" />
+
+    <WebView
+        android:id="@+id/web"
+        android:layout_width="828dp"
+        android:layout_height="1099dp"
+        android:layout_marginBottom="-197dp"
+        android:layout_marginEnd="0dp"
+        android:layout_marginLeft="0dp"
+        android:layout_marginRight="0dp"
+        android:layout_marginStart="0dp"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintHorizontal_bias="0.178">
+
+    </WebView>
 
 </android.support.constraint.ConstraintLayout>
