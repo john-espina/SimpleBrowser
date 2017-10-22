@@ -92,6 +92,10 @@ public class MainActivity extends AppCompatActivity {
         bookmarkImageButton = (ImageButton) findViewById(R.id.bookmark_button);
         progressIcon = (ProgressBar)findViewById(R.id.progressBar);
         webview = (WebView) findViewById(R.id.web);
+        final WebSettings webSettings = webview.getSettings();
+        webSettings.setJavaScriptEnabled(true);
+        webSettings.setBuiltInZoomControls(true);
+        webSettings.setDisplayZoomControls(false);
 
 
         webview.setWebViewClient(new WebViewClient(){
@@ -125,8 +129,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        final WebSettings webSettings = webview.getSettings();
-        webSettings.setJavaScriptEnabled(true);
+
 
         menuSpinner = (Spinner) findViewById(R.id.menu_main);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity.this,
