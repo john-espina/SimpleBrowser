@@ -1,19 +1,17 @@
 package com.example.espinajohn.simplebrowser;
 
-import android.app.Dialog;
+
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.webkit.WebBackForwardList;
-import android.webkit.WebChromeClient;
 import android.webkit.WebHistoryItem;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -23,128 +21,126 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-
-
-
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
-    EditText urlBox;
-    ImageButton homeImageButton;
-    ImageButton bookmarkImageButton;
-    Spinner menuSpinner;
-    WebView webview;
-    String urlString;
-    String newUrlString;
-    String URL_ID;
-    ProgressBar progressIcon;
-    ImageButton backFromHistory;
-    TextView historyTextView;
-    TextView historyTextViewHeader;
-    String TAG;
-    LayoutInflater inflater;
-    Boolean outsideWebview;
-    View mainPage;
-    ImageButton refreshButton;
-    TextView clearHistory;
-    ImageButton deleteHistoryButton;
-    ArrayList<String> bookmarkList;
-    Boolean bookmarked;
-    ImageButton starred;
-    TextView dialogBox;
-    Button yes;
-    Button cancel;
-    String booleanKey;
+    private EditText urlBox;
+    private ImageButton homeImageButton;
+    private ImageButton bookmarkImageButton;
+    private Spinner menuSpinner;
+    private WebView webview;
+    private String urlString;
+    private String newUrlString;
+    private String URL_ID;
+    private ProgressBar progressIcon;
+    private ImageButton backFromHistory;
+    private TextView historyTextView;
+    private TextView historyTextViewHeader;
+    private LayoutInflater inflater;
+    private Boolean outsideWebview;
+    private View mainPage;
+    private ImageButton refreshButton;
+    private TextView clearHistory;
+    private ImageButton deleteHistoryButton;
+    private ArrayList<String> bookmarkList;
+    private Boolean bookmarked;
+    private ImageButton starred;
+    private TextView dialogBox;
+    private Button yes;
+    private Button cancel;
 
 
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        outState.putString(URL_ID, webview.getUrl());
-        webview.saveState(outState);
-        outState.putBoolean(booleanKey, bookmarked);
+        outState.putString(getURL_ID(), getWebview().getUrl());
+        getWebview().saveState(outState);
         super.onSaveInstanceState(outState);
 
 
     }
 
-
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        urlString = savedInstanceState.getString(URL_ID);
-        webview.restoreState(savedInstanceState);
-        bookmarked = savedInstanceState.getBoolean(booleanKey);
+        setUrlString(savedInstanceState.getString(getURL_ID()));
+        getWebview().restoreState(savedInstanceState);
         super.onRestoreInstanceState(savedInstanceState);
     }
-
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
 
-        inflater = getLayoutInflater();
-        mainPage = inflater.inflate(R.layout.activity_main, null);
-        final View historyPage = inflater.inflate(R.layout.history, null);
-        final View bookmarksPage = inflater.inflate(R.layout.bookmarks, null);
+        /*
+        * Inflating each layouts so each can easily be called and used later
+        * */
+        setInflater(getLayoutInflater());
+        setMainPage(getInflater().inflate(R.layout.activity_main, null));
+        final View historyPage = getInflater().inflate(R.layout.history, null);
+        final View bookmarksPage = getInflater().inflate(R.layout.bookmarks, null);
         ConstraintLayout.LayoutParams default_layout_params = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, ConstraintLayout.LayoutParams.MATCH_PARENT);
-        addContentView(mainPage, default_layout_params);
+
+        /*
+        * Adding the views altogether
+        * */
+        addContentView(getMainPage(), default_layout_params);
         addContentView(historyPage, default_layout_params);
         addContentView(bookmarksPage, default_layout_params);
 
-        setContentView(mainPage);
+        setContentView(getMainPage());
 
-        outsideWebview = false;
-        bookmarkList = new ArrayList<>();
+        setOutsideWebview(false);
+        setBookmarkList(new ArrayList<String>());
 
-        // Main Page Objects
-        urlBox = (EditText) findViewById(R.id.url_main_activity);
-        homeImageButton = (ImageButton) findViewById(R.id.home_button);
-        bookmarkImageButton = (ImageButton) findViewById(R.id.bookmark_button);
-        progressIcon = (ProgressBar)findViewById(R.id.progressBar);
-        refreshButton = (ImageButton) findViewById(R.id.refresh_button);
-        starred = (ImageButton)findViewById(R.id.starred);
+        // Setting the objects inside the Main Page
+        setUrlBox((EditText) findViewById(R.id.url_main_activity));
+        setHomeImageButton((ImageButton) findViewById(R.id.home_button));
+        setBookmarkImageButton((ImageButton) findViewById(R.id.bookmark_button));
+        setProgressIcon((ProgressBar)findViewById(R.id.progressBar));
+        setRefreshButton((ImageButton) findViewById(R.id.refresh_button));
+        setStarred((ImageButton)findViewById(R.id.starred));
 
-
-        webview = (WebView) findViewById(R.id.web);
-        final WebSettings webSettings = webview.getSettings();
-        webSettings.setJavaScriptEnabled(true);
-        webSettings.setBuiltInZoomControls(true);
+        /*
+        * setting up the webview
+        * */
+        setWebview((WebView) findViewById(R.id.web));
+        final WebSettings webSettings = getWebview().getSettings();
+        webSettings.setJavaScriptEnabled(true); // This enables javascript powered site to be rendered in the webview
+        webSettings.setBuiltInZoomControls(true); // This will allow the webview to be zoomed in and out
         webSettings.setDisplayZoomControls(false);
 
 
+        getWebview().setWebViewClient(new WebViewClient(){
 
-
-
-        webview.setWebViewClient(new WebViewClient(){
             public void onPageStarted (WebView view, String urlString, Bitmap faveicon){
-                refreshButton.setVisibility(View.GONE);
-                progressIcon.setVisibility(View.VISIBLE);
+                getRefreshButton().setVisibility(View.GONE);
+                getProgressIcon().setVisibility(View.VISIBLE);
                 checkIfBookmarked();
-
             }
 
-
             public  void  onPageFinished(WebView view, String urlString){
-                progressIcon.setVisibility(view.GONE);
-                String currentURL = webview.getUrl();
-                urlBox.setText(currentURL);
-                refreshButton.setVisibility(View.VISIBLE);
+                getProgressIcon().setVisibility(view.GONE);
+                String currentURL = getWebview().getUrl();
+                getUrlBox().setText(currentURL);
+                getRefreshButton().setVisibility(View.VISIBLE);
             }
 
 
             @Override
             public  boolean shouldOverrideUrlLoading (WebView view, String urlString ){
+
+                // This will open the phones email app
                 if (urlString.contains("mailto:")){
                     Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.parse(urlString));
                     startActivity(emailIntent);
 
+                // This will call and open the phone app
                 } else if (urlString.startsWith("tel:")) {
                     Intent phoneIntent = new Intent(Intent.ACTION_DIAL,
                             Uri.parse(urlString));
@@ -158,54 +154,63 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-
-        menuSpinner = (Spinner) findViewById(R.id.menu_main);
+        /*
+        * The following sets up the Spinner which will be used as
+        * the menu holder
+        * */
+        setMenuSpinner((Spinner) findViewById(R.id.menu_main));
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity.this,
                 android.R.layout.simple_spinner_item, getResources().getStringArray(R.array.menu_array));
 
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        menuSpinner.setAdapter(adapter);
+        getMenuSpinner().setAdapter(adapter);
 
-        menuSpinner.setOnItemSelectedListener(
+        getMenuSpinner().setOnItemSelectedListener(
                 new AdapterView.OnItemSelectedListener() {
 
                     @Override
                     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 
-                        int selected = menuSpinner.getSelectedItemPosition();
+                        int selected = getMenuSpinner().getSelectedItemPosition();
 
                         if (selected == 1) {
 
-                            if (webview.canGoForward() == true) {
-                                webview.goForward();
+                            if (getWebview().canGoForward() == true) {
+                                checkIfBookmarked();
+                                getWebview().goForward();
+                                getWebview().loadUrl(getWebview().getUrl());
                             }
 
                         } else if (selected == 2) {
 
+                            /*
+                            * This changes the layout using the Bookmark Layout
+                            * Objects found inside the bookmark layout will need to be defined
+                            * */
                             setContentView(bookmarksPage);
-                            outsideWebview = true;
+                            setOutsideWebview(true); // this is important boolean to be used when pressing the back button inside the webview
                             TextView bookmarkText = (TextView)findViewById(R.id.bookmarkXML);
                             TextView bookmarkHeader = (TextView)findViewById(R.id.bookmarktitle);
                             ImageButton goBack = (ImageButton) findViewById(R.id.back_from_bookmark);
 
+                            if (getWebview().canGoForward()){
+                               getWebview().goForward();
 
+                            } else {
+                                String b = "";
+                                for (int x = 0; x < getBookmarkList().size(); x++) {
+                                    b += getBookmarkList().get(x) + "\n";
+                                }
 
-                            if (webview.canGoForward()){
-                               webview.goForward();
+                                bookmarkText.setText(b);
                             }
-                            String b = "";
-                            for (int x = 0; x < bookmarkList.size(); x++) {
-                                b += bookmarkList.get(x) + "\n";
-                            }
-
-                            bookmarkText.setText(b);
 
                             goBack.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
 
-                                    setContentView(mainPage);
-                                    outsideWebview=false;
+                                    setContentView(getMainPage());
+                                    setOutsideWebview(false);
 
                                 }
                             });
@@ -214,72 +219,76 @@ public class MainActivity extends AppCompatActivity {
 
                         } else if (selected ==3){
 
+                            /**
+                             * This will change the layout using the History Layout
+                             *
+                             */
                             setContentView(historyPage);
+                            setOutsideWebview(true);
 
+                            // Defining each ojects inside the History Layout
+                            setHistoryTextViewHeader((TextView) findViewById(R.id.historyXML));
+                            setBackFromHistory((ImageButton) findViewById(R.id.back_from_history));
+                            setHistoryTextView((TextView)findViewById(R.id.historyXML));
+                            setClearHistory((TextView)findViewById(R.id.clear_history));
+                            setDeleteHistoryButton((ImageButton)findViewById(R.id.delete_button));
+                            setDialogBox((TextView)findViewById(R.id.dialog));
+                            setYes((Button)findViewById(R.id.yes_button));
+                            setCancel((Button)findViewById(R.id.no_button));
 
-                            outsideWebview = true;
-
-                            historyTextViewHeader = (TextView) findViewById(R.id.historyXML);
-                            backFromHistory = (ImageButton) findViewById(R.id.back_from_history);
-                            historyTextView = (TextView)findViewById(R.id.historyXML);
-                            clearHistory = (TextView)findViewById(R.id.clear_history);
-                            deleteHistoryButton =(ImageButton)findViewById(R.id.delete_button);
-                            dialogBox = (TextView)findViewById(R.id.dialog);
-                            yes = (Button)findViewById(R.id.yes_button);
-                            cancel = (Button)findViewById(R.id.no_button);
-
-                            dialogBox.setVisibility(View.GONE);
-                            cancel.setVisibility(View.GONE);
-                            yes.setVisibility(View.GONE);
+                            getDialogBox().setVisibility(View.GONE);
+                            getCancel().setVisibility(View.GONE);
+                            getYes().setVisibility(View.GONE);
 
                             getHistory();
 
-                            backFromHistory.setOnClickListener(new View.OnClickListener() {
+                            getBackFromHistory().setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
 
-                                    setContentView(mainPage);
-                                    outsideWebview=false;
+                                    setContentView(getMainPage());
+                                    setOutsideWebview(false);
 
                                 }
                             });
-                            deleteHistoryButton.setOnClickListener(new View.OnClickListener() {
+
+
+                            getDeleteHistoryButton().setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
 
-                                    dialogBox = (TextView)findViewById(R.id.dialog);
-                                    yes = (Button)findViewById(R.id.yes_button);
-                                    cancel = (Button)findViewById(R.id.no_button);
+                                    // Improvised dialog box using TextView and two buttons
+                                    setDialogBox((TextView)findViewById(R.id.dialog));
+                                    setYes((Button)findViewById(R.id.yes_button));
+                                    setCancel((Button)findViewById(R.id.no_button));
 
-                                    dialogBox.setVisibility(View.VISIBLE);
-                                    yes.setVisibility(View.VISIBLE);
-                                    cancel.setVisibility(View.VISIBLE);
+                                    getDialogBox().setVisibility(View.VISIBLE);
+                                    getYes().setVisibility(View.VISIBLE);
+                                    getCancel().setVisibility(View.VISIBLE);
 
-                                    yes.setOnClickListener(new View.OnClickListener() {
+                                    getYes().setOnClickListener(new View.OnClickListener() {
                                         @Override
                                         public void onClick(View v) {
-                                            Intent newWebView = new Intent(MainActivity.this, MainActivity.class);
-                                            startActivity(newWebView);
+                                            getWebview().clearHistory();
+//                                            Intent newWebView = new Intent(MainActivity.this, MainActivity.class);
+//                                            startActivity(newWebView);
                                             Toast.makeText(MainActivity.this, "Browsing history cleared", Toast.LENGTH_SHORT).show();
                                         }
                                     });
 
-                                    cancel.setOnClickListener(new View.OnClickListener() {
+                                    getCancel().setOnClickListener(new View.OnClickListener() {
                                         @Override
                                         public void onClick(View v) {
-                                            dialogBox.setVisibility(View.GONE);
-                                            yes.setVisibility(View.GONE);
-                                            cancel.setVisibility(View.GONE);
+                                            getDialogBox().setVisibility(View.GONE);
+                                            getYes().setVisibility(View.GONE);
+                                            getCancel().setVisibility(View.GONE);
                                         }
                                     });
-
-
-
 
                                 }
                             });
                         }
-                        menuSpinner.setSelection(0);
+                        getMenuSpinner().setSelection(0);
                     }
 
                     @Override
@@ -292,59 +301,58 @@ public class MainActivity extends AppCompatActivity {
          Setting the action that happens after typing the website
          so the user does not have to click the go button
           */
-        urlBox.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        getUrlBox().setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 boolean handled = false;
-                if (actionId == EditorInfo.IME_ACTION_NEXT) {
-                    newUrlString = urlBox.getText().toString();
-                    String enteredURL = checkURL(newUrlString);
+                if (actionId == EditorInfo.IME_ACTION_NEXT || actionId == EditorInfo.IME_ACTION_DONE) {
+                    setNewUrlString(getUrlBox().getText().toString());
+                    String enteredURL = checkURL(getNewUrlString());
                     Toast.makeText(MainActivity.this, enteredURL, Toast.LENGTH_SHORT).show();
-                    webview.loadUrl(enteredURL);
-
+                    getWebview().loadUrl(enteredURL);
 
                 }
                 return true;
             }
         });
 
-        urlBox.setOnClickListener(new View.OnClickListener() {
+        getUrlBox().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                urlBox.setSelection(urlBox.getText().length(), 0);
+                getUrlBox().setSelection(getUrlBox().getText().length(), 0);
             }
 
         });
 
-        homeImageButton.setOnClickListener(new View.OnClickListener() {
+        getHomeImageButton().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                setContentView(mainPage);
-                webview.loadUrl("http://www.google.com");
+                setContentView(getMainPage());
+                getWebview().loadUrl("http://www.google.com");
             }
         });
 
-        refreshButton.setOnClickListener(new View.OnClickListener() {
+        getRefreshButton().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                webview.loadUrl(webview.getUrl());
+                getWebview().loadUrl(getWebview().getUrl());
 
 
             }
         });
 
-        bookmarkImageButton.setOnClickListener(new View.OnClickListener() {
+        getBookmarkImageButton().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                String selectedURL = webview.getUrl();
+                String selectedURL = getWebview().getUrl();
 
-                    bookmarked = true;
-                    bookmarkImageButton.setVisibility(View.GONE);
-                    starred.setVisibility(View.VISIBLE);
-                    bookmarkList.add(selectedURL);
-                    bookmarkList.add("\n");
+                    setBookmarked(true);
+                    getBookmarkImageButton().setVisibility(View.GONE);
+                    getStarred().setVisibility(View.VISIBLE);
+                    getBookmarkList().add(selectedURL);
+                    getBookmarkList().add("\n");
 
                     Toast.makeText(MainActivity.this, "Bookmark added " + selectedURL, Toast.LENGTH_SHORT).show();
 
@@ -352,15 +360,15 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        starred.setOnClickListener(new View.OnClickListener() {
-            String selectedURL = webview.getUrl();
+        getStarred().setOnClickListener(new View.OnClickListener() {
+            String selectedURL = getWebview().getUrl();
             @Override
             public void onClick(View v) {
-                bookmarked = false;
-                bookmarkImageButton.setVisibility(View.VISIBLE);
-                starred.setVisibility(View.GONE);
+                setBookmarked(false);
+                getBookmarkImageButton().setVisibility(View.VISIBLE);
+                getStarred().setVisibility(View.GONE);
                 Toast.makeText(MainActivity.this, "This page is now removed from your Bookmarks", Toast.LENGTH_SHORT).show();
-                bookmarkList.remove(selectedURL);
+                getBookmarkList().remove(selectedURL);
 
             }
         });
@@ -368,13 +376,18 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (webview.canGoBack() == true && outsideWebview == false) {
-            webview.goBack();
 
-        } else if (outsideWebview==true){
+        if (getWebview().canGoBack() == true && getOutsideWebview() == false) {
+            getWebview().goBack();
 
-            setContentView(mainPage);
-            outsideWebview= false;
+        /*This allows the user to go back to the Main page from the history or bookmark page
+         * instead of exiting the application
+         */
+
+        } else if (getOutsideWebview() ==true){
+
+            setContentView(getMainPage());
+            setOutsideWebview(false);
 
         } else {
             finish();
@@ -383,20 +396,27 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
+    /**
+     * This method will get the back and forward history of the webview
+     */
     protected void getHistory(){
 
-        WebBackForwardList history = webview.copyBackForwardList();
+        WebBackForwardList history = getWebview().copyBackForwardList();
 
         for (int i=0; i<history.getSize();i++){
             WebHistoryItem item = history.getItemAtIndex(i);
             String urlTitle = item.getTitle();
             String urlInHistory = item.getUrl();
-            historyTextView.append(urlTitle + "\n" + urlInHistory + "\n\n");
+            getHistoryTextView().append(urlTitle + "\n" + urlInHistory + "\n\n");
 
         }
     }
 
+    /**
+     * This method will check/verify the inputted url
+     * @param url
+     * @return String
+     */
     protected  String checkURL(String url){
         if (url.startsWith("http://")){
             url = url;
@@ -420,19 +440,220 @@ public class MainActivity extends AppCompatActivity {
         return url;
     }
 
+    /**
+     * This method chechs if a url is bookmarked or not
+     * If it is, the star icon appears,
+     * If it is not, the bookmark icon will appear
+     * Each of these icons is connected to its own function and clickListener
+     */
     public void checkIfBookmarked(){
-        if (bookmarkList.contains(webview.getUrl())){
-            bookmarked = true;
-           starred.setVisibility(View.VISIBLE);
-            bookmarkImageButton.setVisibility(View.GONE);
+        if (getBookmarkList().contains(getWebview().getUrl())){
+            setBookmarked(true);
+           getStarred().setVisibility(View.VISIBLE);
+            getBookmarkImageButton().setVisibility(View.GONE);
 
 
         }else {
-            bookmarked = false;
-            starred.setVisibility(View.GONE);
-            bookmarkImageButton.setVisibility(View.VISIBLE);
+            setBookmarked(false);
+            getStarred().setVisibility(View.GONE);
+            getBookmarkImageButton().setVisibility(View.VISIBLE);
 
 
         }
+    }
+
+
+    // Getters and Setters
+
+    public EditText getUrlBox() {
+        return urlBox;
+    }
+
+    public void setUrlBox(EditText urlBox) {
+        this.urlBox = urlBox;
+    }
+
+    public ImageButton getHomeImageButton() {
+        return homeImageButton;
+    }
+
+    public void setHomeImageButton(ImageButton homeImageButton) {
+        this.homeImageButton = homeImageButton;
+    }
+
+    public ImageButton getBookmarkImageButton() {
+        return bookmarkImageButton;
+    }
+
+    public void setBookmarkImageButton(ImageButton bookmarkImageButton) {
+        this.bookmarkImageButton = bookmarkImageButton;
+    }
+
+    public Spinner getMenuSpinner() {
+        return menuSpinner;
+    }
+
+    public void setMenuSpinner(Spinner menuSpinner) {
+        this.menuSpinner = menuSpinner;
+    }
+
+    public WebView getWebview() {
+        return webview;
+    }
+
+    public void setWebview(WebView webview) {
+        this.webview = webview;
+    }
+
+    public String getUrlString() {
+        return urlString;
+    }
+
+    public void setUrlString(String urlString) {
+        this.urlString = urlString;
+    }
+
+    public String getNewUrlString() {
+        return newUrlString;
+    }
+
+    public void setNewUrlString(String newUrlString) {
+        this.newUrlString = newUrlString;
+    }
+
+    public String getURL_ID() {
+        return URL_ID;
+    }
+
+    public void setURL_ID(String URL_ID) {
+        this.URL_ID = URL_ID;
+    }
+
+    public ProgressBar getProgressIcon() {
+        return progressIcon;
+    }
+
+    public void setProgressIcon(ProgressBar progressIcon) {
+        this.progressIcon = progressIcon;
+    }
+
+    public ImageButton getBackFromHistory() {
+        return backFromHistory;
+    }
+
+    public void setBackFromHistory(ImageButton backFromHistory) {
+        this.backFromHistory = backFromHistory;
+    }
+
+    public TextView getHistoryTextView() {
+        return historyTextView;
+    }
+
+    public void setHistoryTextView(TextView historyTextView) {
+        this.historyTextView = historyTextView;
+    }
+
+    public TextView getHistoryTextViewHeader() {
+        return historyTextViewHeader;
+    }
+
+    public void setHistoryTextViewHeader(TextView historyTextViewHeader) {
+        this.historyTextViewHeader = historyTextViewHeader;
+    }
+
+    public LayoutInflater getInflater() {
+        return inflater;
+    }
+
+    public void setInflater(LayoutInflater inflater) {
+        this.inflater = inflater;
+    }
+
+    public Boolean getOutsideWebview() {
+        return outsideWebview;
+    }
+
+    public void setOutsideWebview(Boolean outsideWebview) {
+        this.outsideWebview = outsideWebview;
+    }
+
+    public View getMainPage() {
+        return mainPage;
+    }
+
+    public void setMainPage(View mainPage) {
+        this.mainPage = mainPage;
+    }
+
+    public ImageButton getRefreshButton() {
+        return refreshButton;
+    }
+
+    public void setRefreshButton(ImageButton refreshButton) {
+        this.refreshButton = refreshButton;
+    }
+
+    public TextView getClearHistory() {
+        return clearHistory;
+    }
+
+    public void setClearHistory(TextView clearHistory) {
+        this.clearHistory = clearHistory;
+    }
+
+    public ImageButton getDeleteHistoryButton() {
+        return deleteHistoryButton;
+    }
+
+    public void setDeleteHistoryButton(ImageButton deleteHistoryButton) {
+        this.deleteHistoryButton = deleteHistoryButton;
+    }
+
+    public ArrayList<String> getBookmarkList() {
+        return bookmarkList;
+    }
+
+    public void setBookmarkList(ArrayList<String> bookmarkList) {
+        this.bookmarkList = bookmarkList;
+    }
+
+    public Boolean getBookmarked() {
+        return bookmarked;
+    }
+
+    public void setBookmarked(Boolean bookmarked) {
+        this.bookmarked = bookmarked;
+    }
+
+    public ImageButton getStarred() {
+        return starred;
+    }
+
+    public void setStarred(ImageButton starred) {
+        this.starred = starred;
+    }
+
+    public TextView getDialogBox() {
+        return dialogBox;
+    }
+
+    public void setDialogBox(TextView dialogBox) {
+        this.dialogBox = dialogBox;
+    }
+
+    public Button getYes() {
+        return yes;
+    }
+
+    public void setYes(Button yes) {
+        this.yes = yes;
+    }
+
+    public Button getCancel() {
+        return cancel;
+    }
+
+    public void setCancel(Button cancel) {
+        this.cancel = cancel;
     }
 }
